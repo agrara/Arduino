@@ -8,7 +8,7 @@ CONNECTED MODULES:
 REQUIRED ADDITIONAL LIBRARIES
 - Adafruit GFX
 - Adafruit SSD1306
-- DHT sensor libray
+- DHT sensor library by Adafruit
 */
 
 
