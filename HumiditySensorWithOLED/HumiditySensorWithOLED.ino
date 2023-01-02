@@ -74,14 +74,14 @@ void loop() {
   temperature = HT.readTemperature();
   buttonValue = digitalRead(BUTTON_PIN);
 
-  if (temperature > 35) {
-    ledTemperature = 35;
-  } else if (temperature < 10) {
-    ledTemperature = 10;
+  if (temperature > HIGH_TEMPERATURE) {
+    ledTemperature = HIGH_TEMPERATURE;
+  } else if (temperature < LOW_TEMPERATURE) {
+    ledTemperature = LOW_TEMPERATURE;
   } else {
     ledTemperature = temperature;
   }
-  if(ledTemperature > 23.5 && ledTemperature < 25.5){
+  if(ledTemperature > LOW_TEMPERATURE_COMFORT && ledTemperature < HIGH_TEMPERATURE_COMFORT){
     digitalWrite(GREEN_PIN, 1);
     analogWrite(RED_PIN, 40);
     analogWrite(BLUE_PIN, 40);
