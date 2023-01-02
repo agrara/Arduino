@@ -8,7 +8,7 @@ CONNECTED MODULES:
 REQUIRED ADDITIONAL LIBRARIES
 - Adafruit GFX
 - Adafruit SSD1306
-- DHT11 humidity/temperature sensor
+- DHT sensor libray
 */
 
 
