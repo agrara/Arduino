@@ -40,8 +40,8 @@ float temperature;
 //BUTTON
 
 #define BUTTON_PIN 4
-int swithValue = 0;
-int buttonValue = 1;
+int switchValue = 0;
+int buttonValue;
 
 //LED
 
@@ -52,11 +52,9 @@ int buttonValue = 1;
 float ledTemperature;
 
 void setup() {
-  Serial.begin(9600);
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println("SSD1306 allocation failed");
-    for (;;)
-      ;
+    for (;;);
   }
 
   HT.begin();
@@ -84,15 +82,17 @@ void loop() {
   analogWrite(BLUE_PIN, ((30 - ledTemperature) * (255 / 15)));
 
   if (buttonValue == 0) {
-    swithValue = !swithValue;
+    switchValue = !switchValue;
   }
+
   Serial.println(buttonValue);
   display.setTextSize(TEXTSIZE);
   display.setTextColor(SSD1306_WHITE);
 
   display.clearDisplay();
   display.setCursor(0, 0);
-  if (swithValue == 0) {
+
+  if (switchValue == 0) {
     display.print("Temperature is ");
     display.print(temperature);
     display.println("C");
