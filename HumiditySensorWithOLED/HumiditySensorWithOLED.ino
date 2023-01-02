@@ -48,6 +48,10 @@ int buttonValue;
 #define BLUE_PIN 3
 #define GREEN_PIN 5
 #define RED_PIN 6
+#define HIGH_TEMPERATURE 35
+#define LOW_TEMPERATURE 10
+#define HIGH_TEMPERATURE_COMFORT 25.5
+#define LOW_TEMPERATURE_COMFORT 23.5
 
 float ledTemperature;
 
@@ -70,16 +74,30 @@ void loop() {
   temperature = HT.readTemperature();
   buttonValue = digitalRead(BUTTON_PIN);
 
-  if (temperature > 30) {
-    ledTemperature = 30;
-  } else if (temperature < 15) {
-    ledTemperature = 15;
+  if (temperature > 35) {
+    ledTemperature = 35;
+  } else if (temperature < 10) {
+    ledTemperature = 10;
   } else {
     ledTemperature = temperature;
   }
-
-  analogWrite(RED_PIN, ((ledTemperature - 15) * (255 / 15)));
-  analogWrite(BLUE_PIN, ((30 - ledTemperature) * (255 / 15)));
+  if(ledTemperature > 23.5 && ledTemperature < 25.5){
+    digitalWrite(GREEN_PIN, 1);
+    analogWrite(RED_PIN, 40);
+    analogWrite(BLUE_PIN, 40);
+  }
+  else{
+    if(ledTemperature >= 25.5){
+      analogWrite(RED_PIN, ((ledTemperature - HIGH_TEMPERATURE_COMFORT) * (255 / (HIGH_TEMPERATURE - HIGH_TEMPERATURE_COMFORT))));
+      analogWrite(GREEN_PIN, ((HIGH_TEMPERATURE - ledTemperature) * (255 / (HIGH_TEMPERATURE - HIGH_TEMPERATURE_COMFORT))));
+      digitalWrite(BLUE_PIN, 0);
+    }
+      else {
+        analogWrite(BLUE_PIN, ((LOW_TEMPERATURE_COMFORT - ledTemperature) * (255 / (LOW_TEMPERATURE_COMFORT - LOW_TEMPERATURE))));
+        analogWrite(GREEN_PIN, ((ledTemperature - LOW_TEMPERATURE) * (255 / (LOW_TEMPERATURE_COMFORT - LOW_TEMPERATURE))));
+        digitalWrite(RED_PIN, 0);        
+      }
+  }
 
   if (buttonValue == 0) {
     switchValue = !switchValue;
