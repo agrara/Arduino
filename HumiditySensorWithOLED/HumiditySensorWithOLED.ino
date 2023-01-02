@@ -87,7 +87,7 @@ void loop() {
     analogWrite(BLUE_PIN, 40);
   }
   else{
-    if(ledTemperature >= 25.5){
+    if(ledTemperature >= HIGH_TEMPERATURE_COMFORT){
       analogWrite(RED_PIN, ((ledTemperature - HIGH_TEMPERATURE_COMFORT) * (255 / (HIGH_TEMPERATURE - HIGH_TEMPERATURE_COMFORT))));
       analogWrite(GREEN_PIN, ((HIGH_TEMPERATURE - ledTemperature) * (255 / (HIGH_TEMPERATURE - HIGH_TEMPERATURE_COMFORT))));
       digitalWrite(BLUE_PIN, 0);
