@@ -85,7 +85,6 @@ void loop() {
     switchValue = !switchValue;
   }
 
-  Serial.println(buttonValue);
   display.setTextSize(TEXTSIZE);
   display.setTextColor(SSD1306_WHITE);
 
