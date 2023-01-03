@@ -54,7 +54,7 @@ int buttonValue;
 #define HIGH_TEMPERATURE 35
 #define LOW_TEMPERATURE 10
 #define HIGH_TEMPERATURE_COMFORT 25.5
-#define LOW_TEMPERATURE_COMFORT 23.5
+#define LOW_TEMPERATURE_COMFORT 22.5
 
 float ledTemperature;
 
