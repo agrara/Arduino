@@ -24,7 +24,7 @@ REQUIRED ADDITIONAL LIBRARIES
 
 #define OLED_RESET -1        // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C  ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+Adafruit_SSD1306 OLED(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define TEXTSIZE 1
 
@@ -48,6 +48,9 @@ int buttonValue;
 #define BLUE_PIN 3
 #define GREEN_PIN 5
 #define RED_PIN 6
+
+//OTHER
+
 #define HIGH_TEMPERATURE 35
 #define LOW_TEMPERATURE 10
 #define HIGH_TEMPERATURE_COMFORT 25.5
@@ -55,8 +58,16 @@ int buttonValue;
 
 float ledTemperature;
 
+void LEDToHigh(int pinNumber, float currentTemp, int lowerTempLimit, int higherTempLimit){
+  analogWrite(pinNumber, (currentTemp - lowerTempLimit) * (255 / (higherTempLimit - lowerTempLimit)));
+}
+
+void LEDToLow(int pinNumber, float currentTemp, int lowerTempLimit, int higherTempLimit){
+  analogWrite(pinNumber, ((higherTempLimit - currentTemp) * (255 / (higherTempLimit - lowerTempLimit))));
+}
+
 void setup() {
-  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+  if (!OLED.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println("SSD1306 allocation failed");
     for (;;);
   }
@@ -82,20 +93,20 @@ void loop() {
     ledTemperature = temperature;
   }
   if(ledTemperature > LOW_TEMPERATURE_COMFORT && ledTemperature < HIGH_TEMPERATURE_COMFORT){
-    digitalWrite(GREEN_PIN, 1);
-    analogWrite(RED_PIN, 40);
-    analogWrite(BLUE_PIN, 40);
+    digitalWrite(GREEN_PIN, HIGH);
+    analogWrite(RED_PIN, LOW);
+    analogWrite(BLUE_PIN, LOW);
   }
   else{
     if(ledTemperature >= HIGH_TEMPERATURE_COMFORT){
-      analogWrite(RED_PIN, ((ledTemperature - HIGH_TEMPERATURE_COMFORT) * (255 / (HIGH_TEMPERATURE - HIGH_TEMPERATURE_COMFORT))));
-      analogWrite(GREEN_PIN, ((HIGH_TEMPERATURE - ledTemperature) * (255 / (HIGH_TEMPERATURE - HIGH_TEMPERATURE_COMFORT))));
-      digitalWrite(BLUE_PIN, 0);
+      LEDToHigh(RED_PIN, ledTemperature, HIGH_TEMPERATURE_COMFORT, HIGH_TEMPERATURE);
+      LEDToLow(GREEN_PIN, ledTemperature, HIGH_TEMPERATURE_COMFORT, HIGH_TEMPERATURE);
+      digitalWrite(BLUE_PIN, LOW);
     }
       else {
-        analogWrite(BLUE_PIN, ((LOW_TEMPERATURE_COMFORT - ledTemperature) * (255 / (LOW_TEMPERATURE_COMFORT - LOW_TEMPERATURE))));
-        analogWrite(GREEN_PIN, ((ledTemperature - LOW_TEMPERATURE) * (255 / (LOW_TEMPERATURE_COMFORT - LOW_TEMPERATURE))));
-        digitalWrite(RED_PIN, 0);        
+        LEDToLow(BLUE_PIN, ledTemperature, LOW_TEMPERATURE, LOW_TEMPERATURE_COMFORT);
+        LEDToHigh(GREEN_PIN, ledTemperature, LOW_TEMPERATURE, LOW_TEMPERATURE_COMFORT);
+        digitalWrite(RED_PIN, LOW);        
       }
   }
 
@@ -103,21 +114,21 @@ void loop() {
     switchValue = !switchValue;
   }
 
-  display.setTextSize(TEXTSIZE);
-  display.setTextColor(SSD1306_WHITE);
+  OLED.setTextSize(TEXTSIZE);
+  OLED.setTextColor(SSD1306_WHITE);
 
-  display.clearDisplay();
-  display.setCursor(0, 0);
+  OLED.clearDisplay();
+  OLED.setCursor(0, 0);
 
   if (switchValue == 0) {
-    display.print("Temperature is ");
-    display.print(temperature);
-    display.println("C");
+    OLED.print("Temperature is ");
+    OLED.print(temperature);
+    OLED.println("C");
   } else {
-    display.print("Humidity is ");
-    display.print(humidity);
-    display.println("%");
+    OLED.print("Humidity is ");
+    OLED.print(humidity);
+    OLED.println("%");
   }
-  display.display();
+  OLED.display();
   delay(PAUSE);
 }
