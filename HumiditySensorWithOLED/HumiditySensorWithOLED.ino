@@ -28,6 +28,9 @@ Adafruit_SSD1306 OLED(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define TEXTSIZE 1
 
+int x = 0;
+int y = 16;
+
 //HUMIDITY SENSOR
 
 #define HUMIDITY_SENSOR_TYPE DHT11
@@ -53,7 +56,7 @@ int buttonValue;
 
 #define HIGH_TEMPERATURE 38
 #define LOW_TEMPERATURE 10
-#define HIGH_TEMPERATURE_COMFORT 25.5
+#define HIGH_TEMPERATURE_COMFORT 24.5
 #define LOW_TEMPERATURE_COMFORT 22.5
 
 float ledTemperature;
