@@ -27,9 +27,10 @@ REQUIRED ADDITIONAL LIBRARIES
 Adafruit_SSD1306 OLED(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define TEXTSIZE 1
-
+#define OFFSET_Y 45
 int x = 0;
-int y = 16;
+int pointsQueue[128];
+int queueFull = 0;
 
 //HUMIDITY SENSOR
 
@@ -61,18 +62,15 @@ int buttonValue;
 
 float ledTemperature;
 
-void LEDToHigh(int pinNumber, float currentTemp, int lowerTempLimit, int higherTempLimit){
-  analogWrite(pinNumber, (currentTemp - lowerTempLimit) * (255 / (higherTempLimit - lowerTempLimit)));
-}
-
-void LEDToLow(int pinNumber, float currentTemp, int lowerTempLimit, int higherTempLimit){
-  analogWrite(pinNumber, ((higherTempLimit - currentTemp) * (255 / (higherTempLimit - lowerTempLimit))));
-}
+void LEDToHigh(int, float, int, int);
+void LEDToLow(int, float, int, int);
+void drawTempLine(int, const int*);
 
 void setup() {
   if (!OLED.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println("SSD1306 allocation failed");
-    for (;;);
+    for (;;)
+      ;
   }
 
   HT.begin();
@@ -95,22 +93,21 @@ void loop() {
   } else {
     ledTemperature = temperature;
   }
-  if(ledTemperature > LOW_TEMPERATURE_COMFORT && ledTemperature < HIGH_TEMPERATURE_COMFORT){
+
+  if (ledTemperature > LOW_TEMPERATURE_COMFORT && ledTemperature < HIGH_TEMPERATURE_COMFORT) {
     digitalWrite(GREEN_PIN, HIGH);
     analogWrite(RED_PIN, LOW);
     analogWrite(BLUE_PIN, LOW);
-  }
-  else{
-    if(ledTemperature >= HIGH_TEMPERATURE_COMFORT){
+  } else {
+    if (ledTemperature >= HIGH_TEMPERATURE_COMFORT) {
       LEDToHigh(RED_PIN, ledTemperature, HIGH_TEMPERATURE_COMFORT, HIGH_TEMPERATURE);
       LEDToLow(GREEN_PIN, ledTemperature, HIGH_TEMPERATURE_COMFORT, HIGH_TEMPERATURE);
       digitalWrite(BLUE_PIN, LOW);
+    } else {
+      LEDToLow(BLUE_PIN, ledTemperature, LOW_TEMPERATURE, LOW_TEMPERATURE_COMFORT);
+      LEDToHigh(GREEN_PIN, ledTemperature, LOW_TEMPERATURE, LOW_TEMPERATURE_COMFORT);
+      digitalWrite(RED_PIN, LOW);
     }
-      else {
-        LEDToLow(BLUE_PIN, ledTemperature, LOW_TEMPERATURE, LOW_TEMPERATURE_COMFORT);
-        LEDToHigh(GREEN_PIN, ledTemperature, LOW_TEMPERATURE, LOW_TEMPERATURE_COMFORT);
-        digitalWrite(RED_PIN, LOW);        
-      }
   }
 
   if (buttonValue == 0) {
@@ -127,11 +124,45 @@ void loop() {
     OLED.print("Temperature is ");
     OLED.print(temperature);
     OLED.println("C");
+    
+    pointsQueue[x] = (int)temperature;
+
+    //DRAW GRAPHICS
+    drawTempLine(x, pointsQueue);
+    x++;
+    if (x == SCREEN_WIDTH) {
+      x = 0;
+      if (queueFull == 0) {
+        queueFull = 1;
+      }
+    }
+    //END OF DRAW GRAPHICS
   } else {
     OLED.print("Humidity is ");
     OLED.print(humidity);
     OLED.println("%");
   }
+
   OLED.display();
+
   delay(PAUSE);
+}
+
+void LEDToHigh(int pinNumber, float currentTemp, int lowerTempLimit, int higherTempLimit) {
+  analogWrite(pinNumber, (currentTemp - lowerTempLimit) * (255 / (higherTempLimit - lowerTempLimit)));
+}
+
+void LEDToLow(int pinNumber, float currentTemp, int lowerTempLimit, int higherTempLimit) {
+  analogWrite(pinNumber, ((higherTempLimit - currentTemp) * (255 / (higherTempLimit - lowerTempLimit))));
+}
+
+void drawTempLine(int x, const int* pointsQueue) {
+  for (int i = 0; i <= x; i++) {
+    OLED.drawPixel(i, OFFSET_Y - pointsQueue[x - i], SSD1306_WHITE);
+    if (queueFull == 1) {
+      for (int j = x + 1; j < SCREEN_WIDTH; j++) {
+        OLED.drawPixel(j, OFFSET_Y - pointsQueue[SCREEN_WIDTH - j + x], SSD1306_WHITE);
+      }
+    }
+  }
 }
