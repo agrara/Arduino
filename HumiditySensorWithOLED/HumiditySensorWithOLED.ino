@@ -1,6 +1,6 @@
 /*
 CONNECTED MODULES:
-- OLED Display 128x32
+- OLED Display 128x64
 - Humidity/Temperature sensor
 - Push button
 - 3 color LED
